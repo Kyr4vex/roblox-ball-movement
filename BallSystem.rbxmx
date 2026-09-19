@@ -1,0 +1,181 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">true</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Folder" referent="RBXD15BF16E625F45FE86DA6911F02356ED">
+		<Properties>
+			<Color3 name="IconTint">
+				<R>0</R>
+				<G>0</G>
+				<B>0</B>
+			</Color3>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+			<bool name="DefinesCapabilities">false</bool>
+			<string name="Name">BallSystem - 1.0</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+		</Properties>
+		<Item class="Script" referent="RBX9764394233724A429CCA130C695474FF">
+			<Properties>
+				<ProtectedString name="Source"><![CDATA[-- ballserver.luau - server side ig
+local bridge = game:GetService("ReplicatedStorage"):WaitForChild("BallBridge")
+
+-- // ball properties
+local ballProperties = require(script.BallPropertions)
+
+game:GetService("Players").PlayerAdded:Connect(function(player)
+	player.CharacterAdded:Connect(function(character)
+		-- // some vars
+		local hrp = character:WaitForChild("HumanoidRootPart")
+		-- // ball creation
+		local ball = Instance.new("Part")
+		ball.Name = "Ball"
+		ball.Shape = Enum.PartType.Ball
+		ball.Size = ballProperties.Size
+		ball.Position = character:WaitForChild("HumanoidRootPart").Position
+		ball.Anchored = false
+		ball.CanCollide = true
+		ball.Material = ballProperties.Material
+		ball.Transparency = ballProperties.Transparency
+		-- // humanoid propertions
+		character:FindFirstChildOfClass("Humanoid").PlatformStand = true
+		-- // ball attachment
+		local attachmentRoot = Instance.new("Attachment")
+		attachmentRoot.Name = "RootAttachment"
+		attachmentRoot.Parent = hrp
+		local attachmentBall = Instance.new("Attachment")
+		attachmentBall.Name = "BallAttachment"
+		attachmentBall.Parent = ball
+		-- // socket
+		local socket = Instance.new("BallSocketConstraint")
+		socket.Attachment0 = attachmentRoot
+		socket.Attachment1 = attachmentBall
+		socket.Parent = hrp
+		-- // linearvelocity
+		local moveAttachment = Instance.new("Attachment")
+		moveAttachment.Name = "MoveAttachment"
+		moveAttachment.Parent = ball
+		local linearVelocity = Instance.new("LinearVelocity")
+		linearVelocity.Name = "BallMovement"
+		linearVelocity.Attachment0 = moveAttachment
+		linearVelocity.MaxForce = 200000
+		linearVelocity.VectorVelocity = Vector3.zero
+		linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Plane
+		linearVelocity.RelativeTo = Enum.ActuatorRelativeTo.World
+		linearVelocity.PrimaryTangentAxis = Vector3.new(1, 0, 0)
+		linearVelocity.SecondaryTangentAxis = Vector3.new(0, 0, 1)
+		linearVelocity.Parent = ball
+		-- // final steps
+		ball.Parent = character
+	end)
+end)
+bridge.OnServerEvent:Connect(function(player, finaldir)
+	local character = player.Character
+	local ball = character:FindFirstChild("Ball") :: BasePart
+	local lv = ball:FindFirstChild("BallMovement") :: LinearVelocity
+	if lv then
+		lv.PlaneVelocity = Vector2.new(finaldir.X * ballProperties.Speed, finaldir.Z * ballProperties.Speed)
+	end
+end)
+]]></ProtectedString>
+				<bool name="Disabled">false</bool>
+				<Content name="LinkedSource"><null></null></Content>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{B077E95E-D7F3-499C-AA84-52041268C545}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">BallServer</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+			</Properties>
+			<Item class="ModuleScript" referent="RBXFB702DD9A35D4FCCBBB6B48A18C14839">
+				<Properties>
+					<Content name="LinkedSource"><null></null></Content>
+					<ProtectedString name="Source"><![CDATA[-- ballpropertions.luau - module script with ball propertions
+local ballProperties = {
+	["Size"] = Vector3.new(8,8,8),
+	["Material"] = Enum.Material.Slate,
+	["Transparency"] = 0.6,
+	["Speed"] = 30
+}
+
+return ballProperties]]></ProtectedString>
+					<string name="ScriptGuid">{88D67B1C-D2FF-486A-9526-6444BC449244}</string>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+					<bool name="DefinesCapabilities">false</bool>
+					<string name="Name">BallPropertions</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="RemoteEvent" referent="RBX0D09D0DA802548E5A976FB57D8BD28FF">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">BallBridge</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+			</Properties>
+		</Item>
+		<Item class="LocalScript" referent="RBX097513DC553445AFAB2841D1E58AC12C">
+			<Properties>
+				<ProtectedString name="Source"><![CDATA[-- ballclient.luau - client side ig
+local bridge = game:GetService("ReplicatedStorage"):WaitForChild("BallBridge")
+local player = game:GetService("Players").LocalPlayer
+local runservice = game:GetService("RunService")
+
+local lastMoveDirection = Vector3.new(0, 0, 0)
+
+runservice.RenderStepped:Connect(function()
+	local character = player.Character
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local currentMoveDirection = humanoid.MoveDirection
+	if currentMoveDirection ~= lastMoveDirection then
+		bridge:FireServer(currentMoveDirection)
+		lastMoveDirection = currentMoveDirection
+	end
+end)
+]]></ProtectedString>
+				<bool name="Disabled">false</bool>
+				<Content name="LinkedSource"><null></null></Content>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{71BF0AE3-5C45-46A3-84FC-851ECA120521}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">BallClient</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+			</Properties>
+		</Item>
+		<Item class="Script" referent="RBX9328D5B3CEA544AFBBED68EA0B52CDE8">
+			<Properties>
+				<ProtectedString name="Source"><![CDATA[--[[
+
+ballserver -> serverscriptservice
+ballclient -> startergui
+ballbridge -> replicatedstorage
+
+]]]]></ProtectedString>
+				<bool name="Disabled">true</bool>
+				<Content name="LinkedSource"><null></null></Content>
+				<token name="RunContext">0</token>
+				<string name="ScriptGuid">{50609D31-DA80-40AA-9895-C3CD6652B301}</string>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
+				<bool name="DefinesCapabilities">false</bool>
+				<string name="Name">README</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
+			</Properties>
+		</Item>
+	</Item>
+	<SharedStrings>
+		<SharedString md5="yuZpQdnvvUBOTYh1jqZ2cA=="></SharedString>
+	</SharedStrings>
+</roblox>
